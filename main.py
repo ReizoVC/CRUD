@@ -10,7 +10,9 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-app, rt = fast_app()
+app, rt = fast_app(
+    hdrs=(Link(rel="icon", type="assets/x-icon", href="/assets/logo.png"),),
+)
 
 def get_autos():
     response = supabase.table('auto').select('*').execute()
