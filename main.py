@@ -2,6 +2,8 @@ import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from fasthtml.common import *
+import re
+
 
 load_dotenv()
 
@@ -13,6 +15,11 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 app, rt = fast_app(
     hdrs=(Link(rel="icon", type="assets/x-icon", href="/assets/logo.png"),),
 )
+
+def normalize_column_name(name):
+    # Reemplaza caracteres especiales con su equivalente ASCII y elimina otros caracteres no alfanuméricos
+    return re.sub(r'[^A-Za-z0-9]', '', name.lower())
+
 
 # Function to get data for auto table
 def get_autos():
@@ -81,14 +88,14 @@ def create_row_empleado():
         Th(Input(name="email", type="email", placeholder="Email", form="create-form-empleado")),
         Th(Input(name="contrasena", type="password", placeholder="Contraseña", form="create-form-empleado")),
         Th(Input(name="telefono", type="tel", placeholder="Teléfono", form="create-form-empleado")),
-        Th(Input(name="idauto", type="number", placeholder="ID Auto", form="create-form-empleado")),
         Th(Input(type="submit", value="Agregar", form="create-form-empleado")),
         id="create-row-empleado", hx_swap_oob="true"
     )
 
-# Function to create a table cell for auto
+
 def auto_cell(auto_id: int, column_name: str, column_value: str, edit: bool = False):
-    cell_id = f"auto-{auto_id}-{column_name}"
+    column_name_safe = normalize_column_name(column_name)
+    cell_id = f"auto-{auto_id}-{column_name_safe}"
     attributes = {
         "id": cell_id,
         "hx_swap": "outerHTML",
@@ -97,7 +104,7 @@ def auto_cell(auto_id: int, column_name: str, column_value: str, edit: bool = Fa
     if edit:
         inner_html = Input(name=column_name,
                             value=column_value,
-                            type="text" if column_name != "año" else "number",
+                            type="text" if column_name_safe != "ano" else "number",
                             hx_post=f"/update/auto/{auto_id}/{column_name}",
                             target_id=cell_id,
                             hx_swap="outerHTML",
@@ -111,9 +118,9 @@ def auto_cell(auto_id: int, column_name: str, column_value: str, edit: bool = Fa
         attributes["hx_post"] = f"/swap/auto/{auto_id}/{column_name}"
     return Td(inner_html, **attributes)
 
-# Function to create a table cell for usuario
 def usuario_cell(usuario_id: int, column_name: str, column_value: str, edit: bool = False):
-    cell_id = f"usuario-{usuario_id}-{column_name}"
+    column_name_safe = normalize_column_name(column_name)
+    cell_id = f"usuario-{usuario_id}-{column_name_safe}"
     attributes = {
         "id": cell_id,
         "hx_swap": "outerHTML",
@@ -122,7 +129,7 @@ def usuario_cell(usuario_id: int, column_name: str, column_value: str, edit: boo
     if edit:
         inner_html = Input(name=column_name,
                             value=column_value,
-                            type="text" if column_name != "contrasena" else "password",
+                            type="text" if column_name_safe != "contrasena" else "password",
                             hx_post=f"/update/usuario/{usuario_id}/{column_name}",
                             target_id=cell_id,
                             hx_swap="outerHTML",
@@ -136,9 +143,9 @@ def usuario_cell(usuario_id: int, column_name: str, column_value: str, edit: boo
         attributes["hx_post"] = f"/swap/usuario/{usuario_id}/{column_name}"
     return Td(inner_html, **attributes)
 
-# Function to create a table cell for empleado
 def empleado_cell(empleado_id: int, column_name: str, column_value: str, edit: bool = False):
-    cell_id = f"empleado-{empleado_id}-{column_name}"
+    column_name_safe = normalize_column_name(column_name)
+    cell_id = f"empleado-{empleado_id}-{column_name_safe}"
     attributes = {
         "id": cell_id,
         "hx_swap": "outerHTML",
@@ -147,7 +154,7 @@ def empleado_cell(empleado_id: int, column_name: str, column_value: str, edit: b
     if edit:
         inner_html = Input(name=column_name,
                             value=column_value,
-                            type="text" if column_name not in ["contrasena", "email", "telefono", "idauto"] else "password" if column_name == "contrasena" else "email" if column_name == "email" else "tel" if column_name == "telefono" else "number",
+                            type="text" if column_name_safe not in ["contrasena", "email", "telefono", "idauto"] else "password" if column_name_safe == "contrasena" else "email" if column_name_safe == "email" else "tel" if column_name_safe == "telefono" else "number",
                             hx_post=f"/update/empleado/{empleado_id}/{column_name}",
                             target_id=cell_id,
                             hx_swap="outerHTML",
@@ -160,6 +167,7 @@ def empleado_cell(empleado_id: int, column_name: str, column_value: str, edit: b
         attributes["hx_trigger"] = "click"
         attributes["hx_post"] = f"/swap/empleado/{empleado_id}/{column_name}"
     return Td(inner_html, **attributes)
+
 
 # Function to create a table row for auto
 def auto_row(auto: dict):
@@ -205,12 +213,12 @@ def empleado_row(empleado: dict):
         empleado_cell(empleado.get("idempleado"), "email", empleado.get("email")),
         empleado_cell(empleado.get("idempleado"), "contrasena", "******"),
         empleado_cell(empleado.get("idempleado"), "telefono", empleado.get("telefono")),
-        empleado_cell(empleado.get("idempleado"), "idauto", str(empleado.get("idauto"))),
         Td(
             Button("Eliminar", hx_delete=f"/empleado/{empleado.get('idempleado')}", hx_confirm="¿Estás seguro?", hx_swap="outerHTML", target_id=f"empleado-{empleado.get('idempleado')}"),
         ),
         id=f"empleado-{empleado.get('idempleado')}"
     )
+
 
 # Function to create the auto table
 def auto_table():
@@ -267,7 +275,6 @@ def empleado_table():
                 Th("Email", scope="col"),
                 Th("Contraseña", scope="col"),
                 Th("Teléfono", scope="col"),
-                Th("ID Auto", scope="col"),
                 Th("Acción", scope="col")
             ),
             create_row_empleado()
@@ -419,6 +426,7 @@ def update_empleado(empleado_id: int, column_name: str, empleado: dict):
 @rt("/reset/empleado/{empleado_id:int}/{column_name:str}", methods=["POST"])
 def reset_empleado(empleado_id: int, column_name: str, pre_value: str):
     return empleado_cell(empleado_id, column_name, pre_value)
+
 
 
 serve()
