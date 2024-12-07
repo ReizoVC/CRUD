@@ -308,31 +308,32 @@ def get_autos_page():
         )
     )
 
-@rt("/auto")
+@rt("/auto", methods=["POST"])
 def post_auto(auto: dict):
     response = supabase.table('auto').insert(auto).execute()
     new_auto = response.data[0]
     return auto_row(new_auto), create_row_auto()
 
-@rt("/auto/{auto_id:int}")
+@rt("/auto/{auto_id:int}", methods=["DELETE"])
 def delete_auto(auto_id: int):
     supabase.table('auto').delete().eq('idauto', auto_id).execute()
     return
 
-@rt("/swap/auto/{auto_id:int}/{column_name:str}")
+@rt("/swap/auto/{auto_id:int}/{column_name:str}", methods=["POST"])
 def swap_auto(auto_id: int, column_name: str, pre_value: str):
     return auto_cell(auto_id, column_name, pre_value, edit=True)
 
-@rt("/update/auto/{auto_id:int}/{column_name:str}")
+@rt("/update/auto/{auto_id:int}/{column_name:str}", methods=["POST"])
 def update_auto(auto_id: int, column_name: str, auto: dict):
     auto["idauto"] = auto_id
     response = supabase.table('auto').update({column_name: auto[column_name]}).eq('idauto', auto_id).execute()
     updated_auto = response.data[0]
     return auto_cell(auto_id, column_name, updated_auto[column_name])
 
-@rt("/reset/auto/{auto_id:int}/{column_name:str}")
+@rt("/reset/auto/{auto_id:int}/{column_name:str}", methods=["POST"])
 def reset_auto(auto_id: int, column_name: str, pre_value: str):
     return auto_cell(auto_id, column_name, pre_value)
+
 
 
 # Routes for Usuario
@@ -350,31 +351,32 @@ def get_usuarios_page():
         )
     )
 
-@rt("/usuario")
+@rt("/usuario", methods=["POST"])
 def post_usuario(usuario: dict):
     response = supabase.table('usuario').insert(usuario).execute()
     new_usuario = response.data[0]
     return usuario_row(new_usuario), create_row_usuario()
 
-@rt("/usuario/{usuario_id:int}")
+@rt("/usuario/{usuario_id:int}", methods=["DELETE"])
 def delete_usuario(usuario_id: int):
     supabase.table('usuario').delete().eq('idusuario', usuario_id).execute()
     return
 
-@rt("/swap/usuario/{usuario_id:int}/{column_name:str}")
+@rt("/swap/usuario/{usuario_id:int}/{column_name:str}", methods=["POST"])
 def swap_usuario(usuario_id: int, column_name: str, pre_value: str):
     return usuario_cell(usuario_id, column_name, pre_value, edit=True)
 
-@rt("/update/usuario/{usuario_id:int}/{column_name:str}")
+@rt("/update/usuario/{usuario_id:int}/{column_name:str}", methods=["POST"])
 def update_usuario(usuario_id: int, column_name: str, usuario: dict):
     usuario["idusuario"] = usuario_id
     response = supabase.table('usuario').update({column_name: usuario[column_name]}).eq('idusuario', usuario_id).execute()
     updated_usuario = response.data[0]
     return usuario_cell(usuario_id, column_name, updated_usuario[column_name])
 
-@rt("/reset/usuario/{usuario_id:int}/{column_name:str}")
+@rt("/reset/usuario/{usuario_id:int}/{column_name:str}", methods=["POST"])
 def reset_usuario(usuario_id: int, column_name: str, pre_value: str):
     return usuario_cell(usuario_id, column_name, pre_value)
+
 
 
 # Routes for Empleado
@@ -392,29 +394,29 @@ def get_empleados_page():
         )
     )
 
-@rt("/empleado")
+@rt("/empleado", methods=["POST"])
 def post_empleado(empleado: dict):
     response = supabase.table('empleado').insert(empleado).execute()
     new_empleado = response.data[0]
     return empleado_row(new_empleado), create_row_empleado()
 
-@rt("/empleado/{empleado_id:int}")
+@rt("/empleado/{empleado_id:int}", methods=["DELETE"])
 def delete_empleado(empleado_id: int):
     supabase.table('empleado').delete().eq('idempleado', empleado_id).execute()
     return
 
-@rt("/swap/empleado/{empleado_id:int}/{column_name:str}")
+@rt("/swap/empleado/{empleado_id:int}/{column_name:str}", methods=["POST"])
 def swap_empleado(empleado_id: int, column_name: str, pre_value: str):
     return empleado_cell(empleado_id, column_name, pre_value, edit=True)
 
-@rt("/update/empleado/{empleado_id:int}/{column_name:str}")
+@rt("/update/empleado/{empleado_id:int}/{column_name:str}", methods=["POST"])
 def update_empleado(empleado_id: int, column_name: str, empleado: dict):
     empleado["idempleado"] = empleado_id
     response = supabase.table('empleado').update({column_name: empleado[column_name]}).eq('idempleado', empleado_id).execute()
     updated_empleado = response.data[0]
     return empleado_cell(empleado_id, column_name, updated_empleado[column_name])
 
-@rt("/reset/empleado/{empleado_id:int}/{column_name:str}")
+@rt("/reset/empleado/{empleado_id:int}/{column_name:str}", methods=["POST"])
 def reset_empleado(empleado_id: int, column_name: str, pre_value: str):
     return empleado_cell(empleado_id, column_name, pre_value)
 
