@@ -288,21 +288,7 @@ def home():
     return Titled(
         "Página Principal",
         Div(
-            H1("Bienvenido a RentMove"),
-            Hr(),
-            H2("Sesion"),
-            Ul(
-                Li(A("Iniciar Sesión", href="/login")),
-                Li(A("Registro", href="/register")),
-            )
-        )
-    )
-
-@rt("/login")
-def login_page():
-    return Titled(
-        "Iniciar Sesión",
-        Div(
+            H1("Bienvenido a la Gestión de Datos"),
             Form(
                 Div(
                     Label("Email:", For="email"),
@@ -317,23 +303,12 @@ def login_page():
             ),
             Div(id="login-result"),
             Hr(),
-            A("Regresar a la página principal", href="/"),
+            Ul(
+                Li(A("Registrate", href="/registro")),
+            )
         )
     )
 
-@rt("/login", methods=["POST"])
-def login(email: str, contrasena: str):
-    # Buscar el usuario en la tabla usuarios
-    response = supabase.table('usuario').select('*').eq('email', email).eq('contrasena', contrasena).execute()
-    user_data = response.data
-    
-    if user_data:
-        # Redirigir a la página de gestión de datos
-        return Redirect("/autos")  # Redirige a la página de Autos como ejemplo
-    else:
-        return Div("Error: Credenciales incorrectas. Por favor, inténtalo de nuevo.", id="login-result")
-
-@rt("/register")
 def register_page():
     return Titled(
         "Registro",
@@ -388,29 +363,6 @@ def register_page():
         )
     )
 
-@rt("/register", methods=["POST"])
-def register(nombre: str, apellido: str, dni: str, email: str, contrasena: str, telefono: str, fechanac: str, direccion: str, nrolicencia: str, fechaexplicen: str):
-    # Insertar el nuevo usuario en la tabla usuarios
-    response = supabase.table('usuario').insert({
-        "nombre": nombre,
-        "apellido": apellido,
-        "dni": dni,
-        "email": email,
-        "contrasena": contrasena,
-        "telefono": telefono,
-        "fechanac": fechanac,
-        "direccion": direccion,
-        "nrolicencia": nrolicencia,
-        "fechaexplicen": fechaexplicen,
-    }).execute()
-    
-    if response.status_code == 201:
-        return Div("Registro completado con éxito. Ahora puedes iniciar sesión.", id="registro-result")
-    else:
-        return Div("Error: No se pudo completar el registro. Por favor, inténtalo de nuevo.", id="registro-result")
-
-
-
 @rt("/login", methods=["POST"])
 def login(email: str, contrasena: str):
     # Buscar el usuario en la tabla usuarios
@@ -419,12 +371,18 @@ def login(email: str, contrasena: str):
     
     if user_data:
         # Redirigir a la página de gestión de datos
-        return Redirect("/autos")  # Redirige a la página de Autos como ejemplo
+        return Redirect("/autos") 
     else:
         return Div("Error: Credenciales incorrectas. Por favor, inténtalo de nuevo.", id="login-result")
 
+@rt("/register")
+def post(usuario: dict):
+    response = supabase.table('usuario').insert(usuario).execute()
+    return "Registro completado exitosamente"
 
-
+@rt("/registro")
+def get():
+    return register_page()
 
 # Routes for Auto
 @rt("/autos")
