@@ -288,15 +288,141 @@ def home():
     return Titled(
         "Página Principal",
         Div(
-            H1("Bienvenido a la Gestión de Datos"),
-            P("Selecciona una opción para continuar:"),
+            H1("Bienvenido a RentMove"),
+            Hr(),
+            H2("Sesion"),
             Ul(
-                Li(A("Gestión de Autos", href="/autos")),
-                Li(A("Gestión de Usuarios", href="/usuarios")),
-                Li(A("Gestión de Empleados", href="/empleados")),
+                Li(A("Iniciar Sesión", href="/login")),
+                Li(A("Registro", href="/register")),
             )
         )
     )
+
+@rt("/login")
+def login_page():
+    return Titled(
+        "Iniciar Sesión",
+        Div(
+            Form(
+                Div(
+                    Label("Email:", For="email"),
+                    Input(name="email", type="email", id="email", placeholder="Introduce tu email", required=True),
+                ),
+                Div(
+                    Label("Contraseña:", For="contrasena"),
+                    Input(name="contrasena", type="password", id="contrasena", placeholder="Introduce tu contraseña", required=True),
+                ),
+                Input(type="submit", value="Iniciar Sesión"),
+                id="login-form", hx_post="/login", hx_target="#login-result", hx_swap="outerHTML",
+            ),
+            Div(id="login-result"),
+            Hr(),
+            A("Regresar a la página principal", href="/"),
+        )
+    )
+
+@rt("/login", methods=["POST"])
+def login(email: str, contrasena: str):
+    # Buscar el usuario en la tabla usuarios
+    response = supabase.table('usuario').select('*').eq('email', email).eq('contrasena', contrasena).execute()
+    user_data = response.data
+    
+    if user_data:
+        # Redirigir a la página de gestión de datos
+        return Redirect("/autos")  # Redirige a la página de Autos como ejemplo
+    else:
+        return Div("Error: Credenciales incorrectas. Por favor, inténtalo de nuevo.", id="login-result")
+
+@rt("/register")
+def register_page():
+    return Titled(
+        "Registro",
+        Div(
+            Form(
+                Div(
+                    Label("Nombre:", For="nombre"),
+                    Input(name="nombre", type="text", id="nombre", placeholder="Introduce tu nombre", required=True),
+                ),
+                Div(
+                    Label("Apellido:", For="apellido"),
+                    Input(name="apellido", type="text", id="apellido", placeholder="Introduce tu apellido", required=True),
+                ),
+                Div(
+                    Label("DNI:", For="dni"),
+                    Input(name="dni", type="text", id="dni", placeholder="Introduce tu DNI", required=True),
+                ),
+                Div(
+                    Label("Email:", For="email"),
+                    Input(name="email", type="email", id="email-registro", placeholder="Introduce tu email", required=True),
+                ),
+                Div(
+                    Label("Contraseña:", For="contrasena"),
+                    Input(name="contrasena", type="password", id="contrasena-registro", placeholder="Introduce tu contraseña", required=True),
+                ),
+                Div(
+                    Label("Teléfono:", For="telefono"),
+                    Input(name="telefono", type="tel", id="telefono", placeholder="Introduce tu teléfono", required=True),
+                ),
+                Div(
+                    Label("Fecha de Nacimiento:", For="fechanac"),
+                    Input(name="fechanac", type="date", id="fechanac", required=True),
+                ),
+                Div(
+                    Label("Dirección:", For="direccion"),
+                    Input(name="direccion", type="text", id="direccion", placeholder="Introduce tu dirección", required=True),
+                ),
+                Div(
+                    Label("Número de Licencia:", For="nrolicencia"),
+                    Input(name="nrolicencia", type="text", id="nrolicencia", placeholder="Introduce tu número de licencia", required=True),
+                ),
+                Div(
+                    Label("Fecha de Expiración de Licencia:", For="fechaexplicen"),
+                    Input(name="fechaexplicen", type="date", id="fechaexplicen", required=True),
+                ),
+                Input(type="submit", value="Registrar"),
+                id="registro-form", hx_post="/register", hx_target="#registro-result", hx_swap="outerHTML",
+            ),
+            Div(id="registro-result"),
+            Hr(),
+            A("Regresar a la página principal", href="/"),
+        )
+    )
+
+@rt("/register", methods=["POST"])
+def register(nombre: str, apellido: str, dni: str, email: str, contrasena: str, telefono: str, fechanac: str, direccion: str, nrolicencia: str, fechaexplicen: str):
+    # Insertar el nuevo usuario en la tabla usuarios
+    response = supabase.table('usuario').insert({
+        "nombre": nombre,
+        "apellido": apellido,
+        "dni": dni,
+        "email": email,
+        "contrasena": contrasena,
+        "telefono": telefono,
+        "fechanac": fechanac,
+        "direccion": direccion,
+        "nrolicencia": nrolicencia,
+        "fechaexplicen": fechaexplicen,
+    }).execute()
+    
+    if response.status_code == 201:
+        return Div("Registro completado con éxito. Ahora puedes iniciar sesión.", id="registro-result")
+    else:
+        return Div("Error: No se pudo completar el registro. Por favor, inténtalo de nuevo.", id="registro-result")
+
+
+
+@rt("/login", methods=["POST"])
+def login(email: str, contrasena: str):
+    # Buscar el usuario en la tabla usuarios
+    response = supabase.table('usuario').select('*').eq('email', email).eq('contrasena', contrasena).execute()
+    user_data = response.data
+    
+    if user_data:
+        # Redirigir a la página de gestión de datos
+        return Redirect("/autos")  # Redirige a la página de Autos como ejemplo
+    else:
+        return Div("Error: Credenciales incorrectas. Por favor, inténtalo de nuevo.", id="login-result")
+
 
 
 
